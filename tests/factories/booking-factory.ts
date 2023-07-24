@@ -31,3 +31,13 @@ export function CreateUnitRoom(hotelId?: number): Room {
     updatedAt: new Date(),
   };
 }
+
+export function CreateUnitBooking(userId: number, roomId: number): Booking {
+  return {
+    id: faker.datatype.number(),
+    userId,
+    roomId,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+}

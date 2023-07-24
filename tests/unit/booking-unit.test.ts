@@ -1,5 +1,6 @@
 import { Booking, Room } from '@prisma/client';
 import {
+  CreateUnitBooking,
   CreateUnitEnrollmentWithAdress,
   CreateUnitRoom,
   CreateUnitTicketWithTicketType,
@@ -76,7 +77,7 @@ describe('Booking Service unit test', () => {
       jest.spyOn(enrollmentRepository, 'findWithAddressByUserId').mockResolvedValueOnce(mockEnrollment);
       jest.spyOn(ticketsRepository, 'findTicketByEnrollmentId').mockResolvedValueOnce(mockTicketNotPAID);
       const promise = bookingService.createBooking(mockRoom.id, mockUser.id);
-      expect(promise).rejects.toEqual(paymentRequiredError('Ticket Status Must Be PAID.'));
+      expect(promise).rejects.toEqual(forbiddenError('Ticket Status Must Be PAID.'));
     });
 
     it('it should respond with Request Error: Unprocessable Entity if ticket is Remote', async () => {
@@ -88,7 +89,7 @@ describe('Booking Service unit test', () => {
       jest.spyOn(enrollmentRepository, 'findWithAddressByUserId').mockResolvedValueOnce(mockEnrollment);
       jest.spyOn(ticketsRepository, 'findTicketByEnrollmentId').mockResolvedValueOnce(mockTicketRemote);
       const promise = bookingService.createBooking(mockRoom.id, mockUser.id);
-      expect(promise).rejects.toEqual(requestError(422, 'The Ticket Should Be Of The In-Person Type.'));
+      expect(promise).rejects.toEqual(forbiddenError('The Ticket Should Be Of The In-Person Type.'));
     });
 
     it('it should respond with Request Error: Unprocessable Entity if ticket does not include hotel.', async () => {
@@ -100,7 +101,50 @@ describe('Booking Service unit test', () => {
       jest.spyOn(enrollmentRepository, 'findWithAddressByUserId').mockResolvedValueOnce(mockEnrollment);
       jest.spyOn(ticketsRepository, 'findTicketByEnrollmentId').mockResolvedValueOnce(mockTicketWithoutHotel);
       const promise = bookingService.createBooking(mockRoom.id, mockUser.id);
-      expect(promise).rejects.toEqual(requestError(422, 'The Ticket Should A Hotel Included.'));
+      expect(promise).rejects.toEqual(forbiddenError('The Ticket Should A Hotel Included.'));
+    });
+
+    it('it should respond with Not Found Error if the given roomId does not exist', async () => {
+      const mockUser = CreateUnitUser();
+      const mockEnrollment = CreateUnitEnrollmentWithAdress(mockUser);
+      const mockRoom = CreateUnitRoom();
+      const mockTicketWithHotel = CreateUnitTicketWithTicketType('PAID', false, true);
+
+      jest.spyOn(enrollmentRepository, 'findWithAddressByUserId').mockResolvedValueOnce(mockEnrollment);
+      jest.spyOn(ticketsRepository, 'findTicketByEnrollmentId').mockResolvedValueOnce(mockTicketWithHotel);
+      jest.spyOn(bookingRepository, 'getRoomById').mockResolvedValueOnce(null);
+      const promise = bookingService.createBooking(mockRoom.id, mockUser.id);
+      expect(promise).rejects.toEqual(notFoundError());
+    });
+
+    it('should respond with Forbidden Error if user tries to book a room that has reached its full capacity', async () => {
+      const mockUser = CreateUnitUser();
+      const mockEnrollment = CreateUnitEnrollmentWithAdress(mockUser);
+      const mockRoom = CreateUnitRoom();
+      const mockTicketWithHotel = CreateUnitTicketWithTicketType('PAID', false, true);
+
+      jest.spyOn(enrollmentRepository, 'findWithAddressByUserId').mockResolvedValueOnce(mockEnrollment);
+      jest.spyOn(ticketsRepository, 'findTicketByEnrollmentId').mockResolvedValueOnce(mockTicketWithHotel);
+      jest.spyOn(bookingRepository, 'getRoomById').mockResolvedValueOnce(mockRoom);
+      jest.spyOn(bookingRepository, 'countBookingsByRoomId').mockResolvedValueOnce(3);
+      const promise = await bookingService.createBooking(mockRoom.id, mockUser.id);
+      expect(promise).toEqual(forbiddenError());
+    });
+
+    it('should respond with created booking id', async () => {
+      const mockUser = CreateUnitUser();
+      const mockEnrollment = CreateUnitEnrollmentWithAdress(mockUser);
+      const mockRoom = CreateUnitRoom();
+      const mockTicketWithHotel = CreateUnitTicketWithTicketType('PAID', false, true);
+      const mockBooking = CreateUnitBooking(mockUser.id, mockRoom.id);
+
+      jest.spyOn(enrollmentRepository, 'findWithAddressByUserId').mockResolvedValueOnce(mockEnrollment);
+      jest.spyOn(ticketsRepository, 'findTicketByEnrollmentId').mockResolvedValueOnce(mockTicketWithHotel);
+      jest.spyOn(bookingRepository, 'getRoomById').mockResolvedValueOnce(mockRoom);
+      jest.spyOn(bookingRepository, 'countBookingsByRoomId').mockResolvedValueOnce(2);
+      jest.spyOn(bookingRepository, 'createBooking').mockResolvedValueOnce({ id: mockBooking.id });
+      const promise = await bookingService.createBooking(mockRoom.id, mockUser.id);
+      expect(promise).toEqual({ id: mockBooking.id });
     });
   });
 });

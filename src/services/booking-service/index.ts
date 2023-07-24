@@ -1,10 +1,8 @@
 import { Room, TicketStatus } from '@prisma/client';
-import httpStatus from 'http-status';
-import { notFoundError, requestError } from '@/errors';
+import { notFoundError } from '@/errors';
 import bookingRepository from '@/repositories/booking-repository';
 import enrollmentRepository from '@/repositories/enrollment-repository';
 import ticketsRepository from '@/repositories/tickets-repository';
-import { paymentRequiredError } from '@/errors/payment-required-error';
 import { forbiddenError } from '@/errors/forbidden-error';
 
 async function createBooking(roomId: number, userId: number) {
@@ -43,12 +41,12 @@ async function updateBooking(userId: number, bookingId: number, roomId: number) 
 
 function checkTicketRules(ticketStatus: TicketStatus, isTicketRemote: boolean, includesHotel: boolean) {
   if (ticketStatus !== 'PAID') {
-    throw paymentRequiredError('Ticket Status Must Be PAID.');
+    throw forbiddenError('Ticket Status Must Be PAID.');
   }
   if (isTicketRemote) {
-    throw requestError(httpStatus.UNPROCESSABLE_ENTITY, 'The Ticket Should Be Of The In-Person Type.');
+    throw forbiddenError('The Ticket Should Be Of The In-Person Type.');
   }
-  if (!includesHotel) throw requestError(httpStatus.UNPROCESSABLE_ENTITY, 'The Ticket Should A Hotel Included.');
+  if (!includesHotel) throw forbiddenError('The Ticket Should A Hotel Included.');
 }
 
 async function checkForUserBooking(userId: number) {
