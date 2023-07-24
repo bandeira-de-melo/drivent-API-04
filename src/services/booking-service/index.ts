@@ -23,7 +23,7 @@ async function createBooking(roomId: number, userId: number) {
   if (!room) throw notFoundError();
   const bookingsForThisRoom = await bookingRepository.countBookingsByRoomId(room.id);
   if (bookingsForThisRoom >= room.capacity) return forbiddenError();
-  const bookingId = bookingRepository.createBooking(userId, room.id);
+  const bookingId = await bookingRepository.createBooking(userId, room.id);
   return bookingId;
 }
 
@@ -41,7 +41,7 @@ async function updateBooking(userId: number, bookingId: number, roomId: number) 
   return updatedBookingId;
 }
 
-async function checkTicketRules(ticketStatus: TicketStatus, isTicketRemote: boolean, includesHotel: boolean) {
+function checkTicketRules(ticketStatus: TicketStatus, isTicketRemote: boolean, includesHotel: boolean) {
   if (ticketStatus !== 'PAID') {
     throw paymentRequiredError('Ticket Status Must Be PAID.');
   }

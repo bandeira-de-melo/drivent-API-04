@@ -3,7 +3,7 @@ import { TicketStatus } from '@prisma/client';
 import { prisma } from '@/config';
 
 export async function createTicketType() {
-  return prisma.ticketType.create({
+  return await prisma.ticketType.create({
     data: {
       name: faker.name.findName(),
       price: faker.datatype.number(),
@@ -14,7 +14,7 @@ export async function createTicketType() {
 }
 
 export async function createTicket(enrollmentId: number, ticketTypeId: number, status: TicketStatus) {
-  return prisma.ticket.create({
+  return await prisma.ticket.create({
     data: {
       enrollmentId,
       ticketTypeId,
@@ -24,7 +24,7 @@ export async function createTicket(enrollmentId: number, ticketTypeId: number, s
 }
 
 export async function createTicketTypeRemote() {
-  return prisma.ticketType.create({
+  return await prisma.ticketType.create({
     data: {
       name: faker.name.findName(),
       price: faker.datatype.number(),
@@ -35,7 +35,7 @@ export async function createTicketTypeRemote() {
 }
 
 export async function createTicketTypeWithHotel() {
-  return prisma.ticketType.create({
+  return await prisma.ticketType.create({
     data: {
       name: faker.name.findName(),
       price: faker.datatype.number(),

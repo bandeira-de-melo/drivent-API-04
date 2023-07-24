@@ -14,11 +14,12 @@ async function createBooking(userId: number, roomId: number) {
 }
 
 async function updateBooking(bookingId: number, roomId: number) {
-  return prisma.booking.update({ where: { id: bookingId }, data: { roomId }, select: { id: true } });
+  return await prisma.booking.update({ where: { id: bookingId }, data: { roomId }, select: { id: true } });
 }
 
 async function getBookingByUserId(userId: number) {
-  return await prisma.booking.findFirst({ where: { userId }, include: { Room: true } });
+  const result = await prisma.booking.findFirst({ where: { userId }, include: { Room: true } });
+  return result;
 }
 
 const bookingRepository = {
