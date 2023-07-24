@@ -1,11 +1,11 @@
 import { RequestError } from '@/protocols';
 
-export function requestError(status: number, statusText: string): RequestError {
+export function requestError(status: number, message?: string): RequestError {
   return {
     name: 'RequestError',
     data: null,
     status,
-    statusText,
-    message: 'No result for this search!',
+    statusText: 'No Result',
+    message: message || 'No result for this search!',
   };
 }
