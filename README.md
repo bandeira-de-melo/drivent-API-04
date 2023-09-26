@@ -1,10 +1,21 @@
-# Driven.t - Back-end
-
+# Driven.t 
 Back-end for Driven.t, an event management solution.
+![drivent-github](https://github.com/bandeira-de-melo/drivent-API-04/assets/83191364/775d650f-7573-4739-8a79-80215cdb749e)
 
 ## About
 
-Driven.t is a web browser application with which you can manage every single aspect of your event.
+Driven.t is a web browser application with which you can manage every single aspect of your event, from buying a remote or in person ticket for an envent to booking a room one of the available hotels nearby the event location.
+
+## Tools 
+- Typescript
+- Prisma ORM
+- Postgres
+- FakerJS
+- DayJS
+- Jest
+- Supertest
+- JWT
+- Bcrypt
 
 ## How to run for development
 
