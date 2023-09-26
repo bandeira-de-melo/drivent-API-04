@@ -1,5 +1,5 @@
 # Driven.t 
-Back-end for Driven.t, an event management solution.
+## Back-end for Driven.t, an event management solution.
 ![drivent-github](https://github.com/bandeira-de-melo/drivent-API-04/assets/83191364/775d650f-7573-4739-8a79-80215cdb749e)
 
 ## About
